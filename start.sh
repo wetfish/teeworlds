@@ -2,7 +2,7 @@
 # Load password from config.sh
 source config.sh
 
-config="$1.conf"
+config="config/$1.conf"
 temp="/tmp/teeworlds.$RANDOM.conf"
 
 # Copy existing config into temp file
