@@ -9,6 +9,7 @@ temp="/tmp/teeworlds.$RANDOM.conf"
 cat $config > $temp
 
 # Append password
-echo "sv_rcon_password $password" >> $temp
+echo "sv_rcon_password $adminpass" >> $temp
+echo "sv_rcon_mod_password $modpass" >> $temp
 
 teeworlds-server -f $temp
