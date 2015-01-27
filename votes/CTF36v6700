@@ -1,0 +1,4 @@
+sv_spectator_slots 4;
+sv_scorelimit 700;
+sv_gametype ctf;
+sv_map ctf3
