@@ -25,6 +25,12 @@ class Chat:
                         pass
         if "!" != msg[0]:
             return
+        if "!top" == msg:
+            bot.print_bests()
+            return
+        if "!topall" == msg:
+            bot.print_bests_all()
+            return
         ms = msg.split(' ', 1)
         if "!stats" == ms[0]:
             if len(ms) == 1:

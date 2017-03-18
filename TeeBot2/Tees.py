@@ -48,9 +48,36 @@ class Tees(object):
             ttmp = self.get_Tee(tmp)
             if ttmp.get_nick() == nick:
                 return ttmp
-  #  def on_round_end(self):
-  #      t = self.get_TeeLst()
-  #      for tmp in t:
-  #          ttmp = self.get_Tee(tmp)
-  #          nick = ttmp.get_nick()
-  #          ptmp = sel
+    def get_bests_kd(self, max):
+        t = self.get_TeeLst()
+        best = 0
+        btees = []
+        for tmp in t:
+            ttmp = self.get_Tee(tmp)
+            tkdr = ttmp.get_kd()
+            if tkdr > best:
+                best = tkdr
+        for tmp in t:
+            ttmp = self.get_Tee(tmp)
+            tkdr = ttmp.get_kd()
+            if tkdr == best:
+                btees.append(ttmp.get_nick())
+        teestr = ", ".join(btees)
+        return "{:3.2f} ({:s})".format(best, teestr)
+
+    def get_bests_arg(self, handle):
+        t = self.get_TeeLst()
+        best = 0
+        btees = []
+        for tmp in t:
+            ttmp = self.get_Tee(tmp)
+            tval = ttmp.attributes[handle]
+            if tval > best:
+                best = tval
+        for tmp in t:
+            ttmp = self.get_Tee(tmp)
+            tval = ttmp.attributes[handle]
+            if tval == best:
+                btees.append(ttmp.get_nick())
+        teestr = ", ".join(btees)
+        return "{:d} ({:s})".format(best, teestr)
