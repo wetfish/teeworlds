@@ -48,14 +48,14 @@ class Tees(object):
             ttmp = self.get_Tee(tmp)
             if ttmp.get_nick() == nick:
                 return ttmp
-    def get_bests_kd(self, max):
+    def get_bests_kdv(self, max):
         t = self.get_TeeLst()
         best = 0
         btees = []
         for tmp in t:
             ttmp = self.get_Tee(tmp)
             tkdr = ttmp.get_kd()
-            if tkdr > best:
+            if (tkdr > best) and (tkdr < max):
                 best = tkdr
         for tmp in t:
             ttmp = self.get_Tee(tmp)
@@ -63,16 +63,30 @@ class Tees(object):
             if tkdr == best:
                 btees.append(ttmp.get_nick())
         teestr = ", ".join(btees)
-        return "{:3.2f} ({:s})".format(best, teestr)
+        return best, teestr
 
-    def get_bests_arg(self, handle):
+    def get_bests_kd(self, max):
+        arr = []
+        best = 9999999
+        x = 0
+        while x < max:
+           bests = self.get_bests_kdv(best)
+           if bests[0] >= best:
+               break
+           arr.append("{:3.2f} ({:s})".format(bests[0], bests[1]))
+           best = bests[0]
+           x += 1
+        astr = ", ".join(arr)
+        return astr
+
+    def get_bests_argv(self, handle, max):
         t = self.get_TeeLst()
         best = 0
         btees = []
         for tmp in t:
             ttmp = self.get_Tee(tmp)
             tval = ttmp.attributes[handle]
-            if tval > best:
+            if (tval > best) and (tval < max):
                 best = tval
         for tmp in t:
             ttmp = self.get_Tee(tmp)
@@ -80,4 +94,18 @@ class Tees(object):
             if tval == best:
                 btees.append(ttmp.get_nick())
         teestr = ", ".join(btees)
-        return "{:d} ({:s})".format(best, teestr)
+        return best, teestr
+
+    def get_bests_arg(self, handle, max):
+        arr = []
+        best = 999999999
+        x = 0
+        while x < max:
+            bests = self.get_bests_argv(handle, best)
+            if bests[0] >= best:
+                break
+            arr.append("{:d} ({:s})".format(bests[0], bests[1]))
+            best = bests[0]
+            x += 1
+        astr = ", ".join(arr)
+        return astr

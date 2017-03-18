@@ -226,16 +226,16 @@ class TeeBot(Thread):
         return self.events.conversation(line)
 
     def print_bests(self):
-        self.say("Best k/d = {:s}".format(self.teelst.get_bests_kd(3)))
-        self.say("Best spree = {:s}".format(self.teelst.get_bests_arg("largest_spree")))
-        self.say("Best multi = {:s}".format(self.teelst.get_bests_arg("largest_multikill")))
-        self.say("Most steals = {:s}".format(self.teelst.get_bests_arg("steals")))
+        self.say("Best k/d = {:s}".format(self.teelst.get_bests_kd(2)))
+        self.say("Best spree = {:s}".format(self.teelst.get_bests_arg("largest_spree", 2)))
+        self.say("Best multi = {:s}".format(self.teelst.get_bests_arg("largest_multikill", 2)))
+        self.say("Most steals = {:s}".format(self.teelst.get_bests_arg("steals", 2)))
 
     def print_bests_all(self):
-        self.say("Best k/d = {:s}".format(self.plist.get_bests_kd(3)))
-        self.say("Best spree = {:s}".format(self.plist.get_bests_arg("largest_spree")))
-        self.say("Best multi = {:s}".format(self.plist.get_bests_arg("largest_multikill")))
-        self.say("Most steals = {:s}".format(self.plist.get_bests_arg("steals")))
+        self.say("Best k/d = {:s}".format(self.plist.get_bests_kd(2)))
+        self.say("Best spree = {:s}".format(self.plist.get_bests_arg("largest_spree", 2)))
+        self.say("Best multi = {:s}".format(self.plist.get_bests_arg("largest_multikill", 2)))
+        self.say("Most steals = {:s}".format(self.plist.get_bests_arg("steals", 2)))
 
 
     def round_end(self):
