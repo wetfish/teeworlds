@@ -47,6 +47,10 @@ class Tee(object):
                            "hammers": 0,
                            "hammered": 0,
                            "suicides": 0}
+
+    def json_encode(self):
+        return
+
     def get_hammers(self):
         return self.attributes["hammers"]
     def get_hammered(self):   #lol

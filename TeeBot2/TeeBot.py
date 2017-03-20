@@ -24,6 +24,7 @@ import telnetlib
 from threading import Thread
 import time, logging, importlib
 from json import dumps
+import json
 import Tees
 import plugin_loader
 import Events_TeeBot
@@ -52,6 +53,8 @@ class TeeBot(Thread):
         self.info = self.logger.info
         self.exception = self.logger.exception
         self.plugin_loader = plugin_loader.Plugin_loader(self)
+    #    with open('stats.json') as jdata:
+    #        tdata = json.load(jdata)
         self.game = {
             "type": "",
             "start_time": 0,
@@ -178,16 +181,8 @@ class TeeBot(Thread):
         return {}
 
     def updTeeList(self, event):
-
-        # try:
-        # self.debug(result.groups(), "DEBUG")
-        # if result.groups()[3] in banned_nicks:
-        #         self.writeLine("kick {0}".format(result.groups()[0]))
-        #
-        # except AttributeError as e:
-        #     self.debug("Error: {0}".format(e), "CRITICAL")
         try:
-            tee = self.teelst.get_Tee(event["player_id"])
+            tee = self.get_Tee(event["player_id"])
             if tee.get_nick() != event["player_name"]:
                 old_ip = tee.get_ip()
                 tee.set_nick(event["player_name"])
@@ -204,7 +199,6 @@ class TeeBot(Thread):
         except AttributeError as e:
             self.exception(e)
         except KeyError as e:
-            #self.exception(e)
             self.debug("Didn't find Tee: {} in player lists, adding it now:".format(event["player_name"]))
             with open(accesslog, "a", encoding="utf-8") as accesslogi:
                 nick = event["player_name"]
@@ -212,8 +206,7 @@ class TeeBot(Thread):
                 time1 = time.strftime("%c", time.localtime())
                 accesslogi.write(
                     "[{}] ".format(time1) + "{} joined the server ({})".format(nick, ip) + "\n")
-            self.teelst.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"],
-                                event["score"], 0)  # id, name, ip, port, score
+            self.teelst.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
             self.plist.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
 
@@ -237,36 +230,17 @@ class TeeBot(Thread):
         self.say("Best multi = {:s}".format(self.plist.get_bests_arg("largest_multikill", 2)))
         self.say("Most steals = {:s}".format(self.plist.get_bests_arg("steals", 2)))
 
-
     def round_end(self):
         t = self.teelst.get_TeeLst()
+        tbuf = []
         for tmp in t:
             ttmp = self.teelst.get_Tee(tmp)
-            nick = ttmp.get_nick()
-            ptmp = self.find_ptee(nick)
-            if ptmp == {}:
-                self.plist.add_Tee(ttmp.get_idnum(), nick, ttmp.get_ip(), ttmp.get_port(), ttmp.get_score(), ttmp.get_spree())
-            ptmp = self.find_ptee(nick)
-            if ptmp.get_largest_spree() < ttmp.get_largest_spree():
-                ptmp.set_largest_spree(ttmp.get_largest_spree())
-            if ptmp.get_largest_multikill() < ttmp.get_largest_multikill():
-                ptmp.set_largest_multikill(ttmp.get_largest_multikill())
-            ptmp.killed(ttmp.get_deaths())
-            ptmp.hammer(ttmp.get_hammers())
-            ptmp.hammered(ttmp.get_hammered())
-            ptmp.suicide(ttmp.get_suicides())
-            ptmp.freeze(ttmp.get_freezes())
-            ptmp.froze(0, ttmp.get_frozen())
-            ptmp.steal(ttmp.get_steals())
-            ptmp.sac(ttmp.get_kills())
-        for tmp in t:
-            ttmp = self.teelst.get_Tee(tmp)
-            idn = ttmp.get_idnum()
-            nick = ttmp.get_nick()
-            ip = ttmp.get_ip()
-            port = ttmp.get_port()
-            self.teelst.rm_Tee(tmp)
-            self.teelst.add_Tee(idn, nick, ip, port, 0, 0)
+            tbuf.append([ttmp.get_idnum(), ttmp.get_nick(), ttmp.get_ip(), ttmp.get_port()])
+        self.teelst.rm_Tee_all()
+        for tb in tbuf:
+            self.teelst.add_Tee(tb[0], tb[1], tb[2], tb[3], 0, 0)
+        with open('stats.json', 'w') as outf:
+            json.dump(self.plist.get_TeeLst(), outf)
 
     def get_Event(self, line):
 

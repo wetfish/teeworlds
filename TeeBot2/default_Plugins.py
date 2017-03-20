@@ -9,11 +9,5 @@ class default_Plugins():
         from Plugins import Spree_notifications
         self.register(Spree_notifications.Spree())
 
-        from Plugins import Statistics
-        self.register(Statistics.Stats())
-
-        from Plugins import Chat_Logger
-        self.register(Chat_Logger.Logger())
-
-        from Plugins import Weapon_Stats
-        self.register(Weapon_Stats.Weapon_Stats())
+#        from Plugins import Chat_Logger
+#        self.register(Chat_Logger.Logger())
