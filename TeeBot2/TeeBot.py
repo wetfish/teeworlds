@@ -53,8 +53,8 @@ class TeeBot(Thread):
         self.info = self.logger.info
         self.exception = self.logger.exception
         self.plugin_loader = plugin_loader.Plugin_loader(self)
-    #    with open('stats.json') as jdata:
-    #        tdata = json.load(jdata)
+#        with open('stats.json') as jdata:
+#            self.plist.teelst = json.load(jdata)
         self.game = {
             "type": "",
             "start_time": 0,
@@ -125,7 +125,7 @@ class TeeBot(Thread):
         self.writeLine('broadcast "' + message.replace('"', "'") + "\"'")
 
     def killSpree(self, id):
-        tee = self.get_Teelista().get(id)
+        tee = self.teelst.get_TeeLst().get(id)
         spree = tee.get_spree()
         if (spree % 5) == 0 and spree != 0:
             msg = "{} is on a killing spree with {} kills!".format(tee.get_nick(), tee.get_spree())
@@ -133,7 +133,7 @@ class TeeBot(Thread):
             self.say(msg)
             pass
     def Multikill(self, id):
-        tee = self.get_Teelista().get(id)
+        tee = self.teelst.get_TeeLst().get(id)
         multikill = tee.get_multikill()
         if multikill == 2:
             msg = "{} DOUBLEKILL!".format(tee.get_nick())
@@ -154,11 +154,6 @@ class TeeBot(Thread):
         msg = "{0}'s {2} kill spree was shutdown by {1}!".format(victim_tee.get_nick(), killer_tee.get_nick(), str(spree))
         self.brd(msg)
         self.say(msg)
-
-    def get_Teelista(self):
-        return self.teelst.get_TeeLst()
-    def get_Teelistp(self):
-        return self.plist.get_TeeLst()
 
     def updTeeList(self, event):
         try:
@@ -198,18 +193,6 @@ class TeeBot(Thread):
     def get_Chat(self, line):
         return self.events.conversation(line)
 
-    def print_bests(self):
-        self.say("Best k/d = {:s}".format(self.teelst.get_bests_kd(2)))
-        self.say("Best spree = {:s}".format(self.teelst.get_bests_arg("largest_spree", 2)))
-        self.say("Best multi = {:s}".format(self.teelst.get_bests_arg("largest_multikill", 2)))
-        self.say("Most steals = {:s}".format(self.teelst.get_bests_arg("steals", 2)))
-
-    def print_bests_all(self):
-        self.say("Best k/d = {:s}".format(self.plist.get_bests_kd(2)))
-        self.say("Best spree = {:s}".format(self.plist.get_bests_arg("largest_spree", 2)))
-        self.say("Best multi = {:s}".format(self.plist.get_bests_arg("largest_multikill", 2)))
-        self.say("Most steals = {:s}".format(self.plist.get_bests_arg("steals", 2)))
-
     def round_end(self):
         t = self.teelst.get_TeeLst()
         tbuf = []
@@ -223,13 +206,13 @@ class TeeBot(Thread):
             json.dump(self.plist.get_TeeLst(), outf)
 
     def get_Event(self, line):
-
         lst = self.events.game_events(line)
         lst["line"] = line
         self.debug("We got event:\n"+dumps(lst))
         if lst is not None:
             if lst["event_type"] == "START":
-                self.print_bests()
+                for x in range(1, 5):
+                    self.say(self.teelst.gen_bests_line(x))
                 self.round_end()
             if lst["event_type"] == "RELOAD ORDER":
                 self.info("Reloaded plugins")
@@ -238,7 +221,6 @@ class TeeBot(Thread):
                 self.writeLine("status")
             if lst["event_type"] == "MAP_CHANGE":
                 self.game["map"] = lst["map_name"]
-
             if lst["event_type"] == "STATUS_MESSAGE":
                 nick = lst["player_name"]
                 ide = lst["player_id"]
@@ -258,14 +240,13 @@ class TeeBot(Thread):
                 tees = self.player_count
                 if tees == 0:
                     self.writeLine("restart")
-
             else:
                 pass
             self.plugin_loader.event_handler(lst)
 
         return lst
-    def run(self):
 
+    def run(self):
         self.tn  = self.connect
         self.say("Connected.")
         self.writeLine("status")
