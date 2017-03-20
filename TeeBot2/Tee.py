@@ -194,7 +194,6 @@ class Tee(object):
         else:
             return "---------------------"
 
-
     @property
     def tojson(self):
         return json.dumps(self.attributes, indent=3)

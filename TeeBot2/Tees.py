@@ -48,6 +48,8 @@ class Tees(object):
             ttmp = self.get_Tee(tmp)
             if ttmp.get_nick() == nick:
                 return ttmp
+        return {}
+
     def get_bests_kdv(self, max):
         t = self.get_TeeLst()
         best = 0
@@ -109,3 +111,15 @@ class Tees(object):
             x += 1
         astr = ", ".join(arr)
         return astr
+
+    def gen_bests_line(self, line):
+        if line == 1:
+            return "Best k/d = {:s}".format(self.get_bests_kd(2))
+        elif line == 2:
+            return "Best spree = {:s}".format(self.get_bests_arg("largest_spree", 2))
+        elif line == 3:
+            return "Best multi = {:s}".format(self.get_bests_arg("largest_multikill", 2))
+        elif line == 4:
+            return "Most steals = {:s}".format(self.get_bests_arg("steals", 2))
+        else:
+            return "---------------------"

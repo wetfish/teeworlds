@@ -159,30 +159,10 @@ class TeeBot(Thread):
         return self.teelst.get_TeeLst()
     def get_Teelistp(self):
         return self.plist.get_TeeLst()
-    def get_Tee(self, id):
-        return self.teelst.get_Tee(int(id))
-    def get_Tee_persistent(self, id):
-        return self.plist.get_Tee(int(id))
-
-    def find_tee(self, nick):
-        t = self.get_Teelista()
-        for tmp in t:
-            ttmp = self.get_Tee(tmp)
-            if ttmp.get_nick() == nick:
-                return ttmp
-        return {}
-
-    def find_ptee(self, nick):
-        t = self.get_Teelistp()
-        for tmp in t:
-            ttmp = self.get_Tee_persistent(tmp)
-            if ttmp.get_nick() == nick:
-                return ttmp
-        return {}
 
     def updTeeList(self, event):
         try:
-            tee = self.get_Tee(event["player_id"])
+            tee = self.teelst.get_Tee(event["player_id"])
             if tee.get_nick() != event["player_name"]:
                 old_ip = tee.get_ip()
                 tee.set_nick(event["player_name"])
@@ -267,7 +247,7 @@ class TeeBot(Thread):
                 lista = self.updTeeList(lst)
             if lst["event_type"] == "LEAVE":
                 with open(accesslog, "a", encoding="utf-8") as accesslogi:
-                    tee = self.get_Tee(lst["player_id"])
+                    tee = self.teelst.get_Tee(lst["player_id"])
                     nick = tee.get_nick()
                     ip = tee.get_ip()
                     time1 = time.strftime("%c", time.localtime())

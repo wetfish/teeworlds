@@ -8,11 +8,11 @@ class Spree:
         bot.debug("Spree_notifications is handling this.")
         if event["event_type"] == "KILL":
             try:
-                killer_tee = bot.get_Tee(event["killer_id"])
-                victim_tee = bot.get_Tee(event["victim_id"])
+                killer_tee = bot.teelst.get_Tee(event["killer_id"])
+                victim_tee = bot.teelst.get_Tee(event["victim_id"])
                 kid = killer_tee.get_idnum()
-                ktp = bot.find_ptee(killer_tee.get_nick())
-                vtp = bot.find_ptee(victim_tee.get_nick())
+                ktp = bot.plist.find_tee(killer_tee.get_nick())
+                vtp = bot.plist.find_tee(victim_tee.get_nick())
                 if (event["user_weapon_id"] == '-2') or (kid == victim_tee.get_idnum()):
                     killer_tee.suicide(1)
                     ktp.suicide(1)
@@ -33,7 +33,8 @@ class Spree:
                     if kid == id:
                         bot.Multikill(kid)
                     else:
-                        bot.say("{} stole {}'s kill!".format(killer_tee.get_nick(),bot.get_Tee(id).get_nick()))
+                        tt = bot.teelst.get_Tee(id)
+                        bot.say("{} stole {}'s kill!".format(killer_tee.get_nick(), tt.get_nick()))
                         killer_tee.steal(1)
                         ktp.steal(1)
                 elif event["user_weapon_id"] == '4': #freeze
