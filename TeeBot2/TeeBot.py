@@ -23,9 +23,8 @@
 import telnetlib
 from threading import Thread
 import time, logging, importlib
-from json import dumps
-import Tee
 import json
+from json import dumps
 import Tees
 import plugin_loader
 import Events_TeeBot
@@ -45,7 +44,6 @@ class TeeBot(Thread):
         self.address = self.host + ":" + str(port)
         self.teelst = Tees.Tees()
         self.plist = Tees.Tees()
-        self.order = 0
         self.events = Events_TeeBot.Events()
         self.name = nick
         logging.basicConfig()
@@ -136,41 +134,39 @@ class TeeBot(Thread):
         self.info("Broadcasting: {}".format(message))
         self.writeLine('broadcast "' + message.replace('"', "'") + "\"'")
 
+    def bs(self, message):
+        self.say(message)
+        self.brd(message)
+
     def killSpree(self, id):
         tee = self.teelst.get_TeeLst().get(id)
         spree = tee.get_spree()
         if (spree % 5) == 0 and spree != 0:
-            msg = "{} is on a killing spree with {} kills!".format(tee.get_nick(), tee.get_spree())
-            self.brd(msg)
-            self.say(msg)
-            pass
+            self.bs("{} is on a killing spree with {} kills!".format(tee.get_nick(), tee.get_spree()))
+
     def Multikill(self, id):
         tee = self.teelst.get_TeeLst().get(id)
         multikill = tee.get_multikill()
         if multikill == 2:
-            msg = "{} DOUBLEKILL!".format(tee.get_nick())
+            self.bs("{} DOUBLEKILL!".format(tee.get_nick()))
         elif multikill == 3:
-            msg = "{} TRIPLEKILL!".format(tee.get_nick())
+            self.bs("{} TRIPLEKILL!".format(tee.get_nick()))
         elif multikill == 4:
-            msg = "{} QUODRAKILL!!".format(tee.get_nick())
+            self.bs("{} QUODRAKILL!!".format(tee.get_nick()))
         elif multikill == 5:
-            msg = "{} PENTAKILL!".format(tee.get_nick())
+            self.bs("{} PENTAKILL!".format(tee.get_nick()))
         elif multikill >= 6:
-            msg = "{} IS A BADASS!".format(tee.get_nick())
-        else:
-            return
-        self.brd(msg)
-        self.say(msg)
+            self.bs("{} IS A BADASS!".format(tee.get_nick()))
 
     def shutdown(self, victim_tee, killer_tee, spree):
-        msg = "{0}'s {2} kill spree was shutdown by {1}!".format(victim_tee.get_nick(), killer_tee.get_nick(), str(spree))
-        self.brd(msg)
-        self.say(msg)
+        self.bs("{}'s {} kill spree was shutdown by {}!".format(victim_tee.get_nick(), spree, killer_tee.get_nick()))
 
     def access_log(self, nick, ip, action):
         with open(accesslog, "a", encoding="utf-8") as accesslogi:
             time1 = time.strftime("%c", time.localtime())
-            accesslogi.write("[{}] {} {} the server ({})\n".format(time1, nick, action, ip))
+            msg = "[{}] {} {} the server ({})\n".format(time1, nick, action, ip)
+            accesslogi.write(msg)
+            self.debug(msg)
 
     def updTeeList(self, event):
         nick = event["player_name"]
@@ -195,11 +191,6 @@ class TeeBot(Thread):
                 newid = len(self.plist.get_TeeLst()) + 1
                 self.plist.add_Tee(newid, nick, ip, event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
-
-    def get_Leaves(self, ide):
-        nick = self.teelst.get_Tee(ide).get_nick()
-        self.teelst.rm_Tee(ide)
-        return nick
 
     def get_Chat(self, line):
         return self.events.conversation(line)
@@ -247,8 +238,8 @@ class TeeBot(Thread):
             if lst["event_type"] == "LEAVE":
                 tee = self.teelst.get_Tee(lst["player_id"])
                 nick = tee.get_nick()
-                self.access_log(nick, tee.get_ip(), "left")
-                self.debug("{} has left the game.".format(nick))
+                self.access_log(tee.get_nick(), tee.get_ip(), "left")
+                self.teelst.rm_Tee(lst["player_id"])
                 self.writeLine("status")
                 if self.player_count == 0:
                     self.writeLine("restart")

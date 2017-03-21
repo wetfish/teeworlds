@@ -64,7 +64,10 @@ class Tees(object):
             tkdr = ttmp.get_kd()
             if tkdr == best:
                 btees.append(ttmp.get_nick())
-        teestr = ", ".join(btees)
+        if best == 0:
+            teestr = "None"
+        else:
+            teestr = ", ".join(btees)
         return best, teestr
 
     def get_bests_kd(self, max):
@@ -95,7 +98,10 @@ class Tees(object):
             tval = ttmp.attributes[handle]
             if tval == best:
                 btees.append(ttmp.get_nick())
-        teestr = ", ".join(btees)
+        if best == 0:
+            teestr = "None"
+        else:
+            teestr = ", ".join(btees)
         return best, teestr
 
     def get_bests_arg(self, handle, max):
