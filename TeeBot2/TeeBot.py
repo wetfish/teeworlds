@@ -195,7 +195,7 @@ class TeeBot(Thread):
                     "[{}] ".format(time1) + "{} joined the server ({})".format(nick, ip) + "\n")
             self.teelst.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
             if self.plist.find_tee(event["player_name"]) == {}:
-                self.plist.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
+                self.plist.add_Tee(len(self.plist.get_TeeLst()) + 1, event["player_name"], event["ip"], event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
 
     def get_Leaves(self, ide):
