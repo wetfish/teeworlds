@@ -133,7 +133,7 @@ class TeeBot(Thread):
         self.writeLine('say "'+self.name+': ' + message.replace('"', "'") + "\"'")
 
     def brd(self, message):
-        self.info("Broadcating: {}".format(message))
+        self.info("Broadcasting: {}".format(message))
         self.writeLine('broadcast "' + message.replace('"', "'") + "\"'")
 
     def killSpree(self, id):
@@ -167,10 +167,10 @@ class TeeBot(Thread):
         self.brd(msg)
         self.say(msg)
 
-    def access_log(self, nick, ip):
+    def access_log(self, nick, ip, action):
         with open(accesslog, "a", encoding="utf-8") as accesslogi:
             time1 = time.strftime("%c", time.localtime())
-            accesslogi.write("[{}] {} joined the server ({})\n".format(time1, nick, ip))
+            accesslogi.write("[{}] {} {} the server ({})\n".format(time1, nick, action, ip))
 
     def updTeeList(self, event):
         nick = event["player_name"]
@@ -184,12 +184,12 @@ class TeeBot(Thread):
                 tee.set_ip(ip)
                 tee.set_port(event["port"])
                 if old_ip != ip:
-                    access_log(nick, ip)
+                    self.access_log(nick, ip, "joined")
         except AttributeError as e:
             self.exception(e)
         except KeyError as e:
             self.debug("Didn't find Tee: {} in player lists, adding it now:".format(nick))
-            access_log(nick, ip)
+            self.access_log(nick, ip, "joined")
             self.teelst.add_Tee(event["player_id"], nick, ip, event["port"], event["score"], 0)
             if self.plist.find_tee(nick) == {}:
                 newid = len(self.plist.get_TeeLst()) + 1
@@ -245,17 +245,12 @@ class TeeBot(Thread):
                     self.writeLine("kick {0}".format(ide))
                 lista = self.updTeeList(lst)
             if lst["event_type"] == "LEAVE":
-                with open(accesslog, "a", encoding="utf-8") as accesslogi:
-                    tee = self.teelst.get_Tee(lst["player_id"])
-                    nick = tee.get_nick()
-                    ip = tee.get_ip()
-                    time1 = time.strftime("%c", time.localtime())
-                    accesslogi.write(
-                        "[{}] ".format(time1) + "{} left the server ({})".format(nick, ip) + "\n")
-                self.debug("{} has left the game.".format(self.get_Leaves(lst[0])))
+                tee = self.teelst.get_Tee(lst["player_id"])
+                nick = tee.get_nick()
+                self.access_log(nick, tee.get_ip(), "left")
+                self.debug("{} has left the game.".format(nick))
                 self.writeLine("status")
-                tees = self.player_count
-                if tees == 0:
+                if self.player_count == 0:
                     self.writeLine("restart")
             else:
                 pass
