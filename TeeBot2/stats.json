@@ -1,1 +1,2 @@
-{"0": 
+[{"multikill": 1, "largest_spree": 0, "froze_by": 0, "nick": "noby", "kills": 0, "hammers": 0, "suicides": 0, "ip": "97.86.185.135", "largest_multikill": 0, "spree": 0, "deaths": 0, "port": "50682", "team": null, "hammered": 0, "lastkilltime": 0, "freezes": 3, "steals": 0, "frozen": 0, "score": "0 (Admin)", "id": 0},
+{"multikill": 1, "largest_spree": 0, "froze_by": 0, "nick": "nooby", "kills": 0, "hammers": 0, "suicides": 0, "ip": "97.86.185.135", "largest_multikill": 0, "spree": 0, "deaths": 0, "port": "31905", "team": null, "hammered": 0, "lastkilltime": 0, "freezes": 0, "steals": 0, "frozen": 3, "score": "0 (Admin)", "id": 1}]

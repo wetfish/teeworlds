@@ -20,7 +20,7 @@ class Chat:
         elif "!stats" == ms[0]:
             tee = bot.teelst.get_Tee(id) if (len(ms) == 1) else bot.teelst.find_tee(ms[1])
         elif "!statsall" == ms[0]:
-            tee = bot.plist.get_Tee(id) if (len(ms) == 1) else bot.plist.find_tee(ms[1])
+            tee = bot.plist.find_tee(event["player_name"]) if (len(ms) == 1) else bot.plist.find_tee(ms[1])
 
         if tee == {}:
             if len(ms) > 1:

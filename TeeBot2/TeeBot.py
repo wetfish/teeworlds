@@ -24,6 +24,7 @@ import telnetlib
 from threading import Thread
 import time, logging, importlib
 from json import dumps
+import Tee
 import json
 import Tees
 import plugin_loader
@@ -44,6 +45,7 @@ class TeeBot(Thread):
         self.address = self.host + ":" + str(port)
         self.teelst = Tees.Tees()
         self.plist = Tees.Tees()
+        self.order = 0
         self.events = Events_TeeBot.Events()
         self.name = nick
         logging.basicConfig()
@@ -53,8 +55,18 @@ class TeeBot(Thread):
         self.info = self.logger.info
         self.exception = self.logger.exception
         self.plugin_loader = plugin_loader.Plugin_loader(self)
-#        with open('stats.json') as jdata:
-#            self.plist.teelst = json.load(jdata)
+        teebuf = []
+        try:
+            with open('stats.json') as jdata:
+                teebuf = json.load(jdata)
+            x = 0
+            for tt in teebuf:
+                self.plist.add_Tee(x, " ", " ", 0, 0, 0)
+                self.plist.get_Tee(x).attributes = tt
+                print(self.plist.get_Tee(x).attributes)
+                x += 1
+        except ValueError as e:
+            print("json error {} at {:d}".format(e.msg, e.pos))
         self.game = {
             "type": "",
             "start_time": 0,
@@ -182,7 +194,8 @@ class TeeBot(Thread):
                 accesslogi.write(
                     "[{}] ".format(time1) + "{} joined the server ({})".format(nick, ip) + "\n")
             self.teelst.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
-            self.plist.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
+            if self.plist.find_tee(event["player_name"]) == {}:
+                self.plist.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
 
     def get_Leaves(self, ide):
@@ -202,8 +215,14 @@ class TeeBot(Thread):
         self.teelst.rm_Tee_all()
         for tb in tbuf:
             self.teelst.add_Tee(tb[0], tb[1], tb[2], tb[3], 0, 0)
-        with open('stats.json', 'w') as outf:
-            json.dump(self.plist.get_TeeLst(), outf)
+        with open('stats.json', 'w+') as outf:
+            p = self.plist.get_TeeLst()
+            buf = []
+            for tmp in p:
+                 buf.append("{:s}".format(json.dumps(self.plist.get_Tee(tmp).attributes)))
+            bufs = "[" + ",\n".join(buf) + "]"
+            print(bufs)
+            outf.write(bufs)
 
     def get_Event(self, line):
         lst = self.events.game_events(line)
