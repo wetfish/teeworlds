@@ -167,35 +167,33 @@ class TeeBot(Thread):
         self.brd(msg)
         self.say(msg)
 
+    def access_log(self, nick, ip):
+        with open(accesslog, "a", encoding="utf-8") as accesslogi:
+            time1 = time.strftime("%c", time.localtime())
+            accesslogi.write("[{}] {} joined the server ({})\n".format(time1, nick, ip))
+
     def updTeeList(self, event):
+        nick = event["player_name"]
+        ip = event["ip"]
         try:
             tee = self.teelst.get_Tee(event["player_id"])
-            if tee.get_nick() != event["player_name"]:
+            if tee.get_nick() != nick:
                 old_ip = tee.get_ip()
-                tee.set_nick(event["player_name"])
+                tee.set_nick(nick)
                 tee.set_score(event["score"])
-                tee.set_ip(event["ip"])
+                tee.set_ip(ip)
                 tee.set_port(event["port"])
-                if old_ip != tee.get_ip():
-                    with open(accesslog, "a", encoding="utf-8") as accesslogi:
-                        time1 = time.strftime("%c", time.localtime())
-                        accesslogi.write("[{}] ".format(time1) + "{} joined the server ({})".format(tee.get_nick(),
-                                                                                                    tee.get_ip()) + "\n")
-                else:
-                    pass
+                if old_ip != ip:
+                    access_log(nick, ip)
         except AttributeError as e:
             self.exception(e)
         except KeyError as e:
-            self.debug("Didn't find Tee: {} in player lists, adding it now:".format(event["player_name"]))
-            with open(accesslog, "a", encoding="utf-8") as accesslogi:
-                nick = event["player_name"]
-                ip = event["ip"]
-                time1 = time.strftime("%c", time.localtime())
-                accesslogi.write(
-                    "[{}] ".format(time1) + "{} joined the server ({})".format(nick, ip) + "\n")
-            self.teelst.add_Tee(event["player_id"], event["player_name"], event["ip"], event["port"], event["score"], 0)
-            if self.plist.find_tee(event["player_name"]) == {}:
-                self.plist.add_Tee(len(self.plist.get_TeeLst()) + 1, event["player_name"], event["ip"], event["port"], event["score"], 0)
+            self.debug("Didn't find Tee: {} in player lists, adding it now:".format(nick))
+            access_log(nick, ip)
+            self.teelst.add_Tee(event["player_id"], nick, ip, event["port"], event["score"], 0)
+            if self.plist.find_tee(nick) == {}:
+                newid = len(self.plist.get_TeeLst()) + 1
+                self.plist.add_Tee(newid, nick, ip, event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
 
     def get_Leaves(self, ide):

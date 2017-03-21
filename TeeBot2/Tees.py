@@ -122,4 +122,4 @@ class Tees(object):
         elif line == 4:
             return "Most steals = {:s}".format(self.get_bests_arg("steals", 2))
         else:
-            return "---------------------"
+             return "---------------------"
