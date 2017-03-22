@@ -73,14 +73,12 @@ class Tees(object):
     def get_bests_kd(self, max):
         arr = []
         best = 9999999
-        x = 0
-        while x < max:
+        for x in range(0, max):
            bests = self.get_bests_kdv(best)
            if bests[0] >= best:
                break
            arr.append("{:3.2f} ({:s})".format(bests[0], bests[1]))
            best = bests[0]
-           x += 1
         astr = ", ".join(arr)
         return astr
 
@@ -107,24 +105,22 @@ class Tees(object):
     def get_bests_arg(self, handle, max):
         arr = []
         best = 999999999
-        x = 0
-        while x < max:
+        for x in range(0, max):
             bests = self.get_bests_argv(handle, best)
             if bests[0] >= best:
                 break
             arr.append("{:d} ({:s})".format(bests[0], bests[1]))
             best = bests[0]
-            x += 1
         astr = ", ".join(arr)
         return astr
 
     def gen_bests_line(self, line):
         if line == 1:
-            return "Best k/d = {:s}".format(self.get_bests_kd(2))
+            return "Best k/d = {:s}".format(self.get_bests_kd(3))
         elif line == 2:
             return "Best spree = {:s}".format(self.get_bests_arg("largest_spree", 2))
         elif line == 3:
-            return "Best multi = {:s}".format(self.get_bests_arg("largest_multikill", 2))
+            return "Best multi = {:s}".format(self.get_bests_arg("largest_multikill", 1))
         elif line == 4:
             return "Most steals = {:s}".format(self.get_bests_arg("steals", 2))
         else:

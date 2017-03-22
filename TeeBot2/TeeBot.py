@@ -127,10 +127,12 @@ class TeeBot(Thread):
         self.writeLine('echo "'+self.name+': ' + message.replace('"', "'") + "\"'")
 
     def say(self, message):
+        message = message[:255]
         self.info("Saying: {}".format(message))
         self.writeLine('say "'+self.name+': ' + message.replace('"', "'") + "\"'")
 
     def brd(self, message):
+        message = message[:255]
         self.info("Broadcasting: {}".format(message))
         self.writeLine('broadcast "' + message.replace('"', "'") + "\"'")
 
