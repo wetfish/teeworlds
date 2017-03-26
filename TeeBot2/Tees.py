@@ -20,46 +20,7 @@
 #  
 #  
 import json
-
-class Tee(object):
-    def __init__(self, idnum, nick, ip, port, score, spree):
-        self.attributes = {"nick": nick,
-                           "id": int(idnum),
-                           "ip": ip,
-                           "port": port,
-                           "score": score,
-                           "spree": spree,
-                           "largest_spree": 0,
-                           "multikill": 1,
-                           "largest_multikill": 0,
-                           "kills": 0,
-                           "lastkilltime": 0,
-                           "team": None,
-                           "deaths": 0,
-                           "freezes": 0,
-                           "frozen": 0,
-                           "froze_by": 0,
-                           "steals": 0,
-                           "hammers": 0,
-                           "hammered": 0,
-                           "suicides": 0}
-
-    def get_nick(self):
-        return self.attributes["nick"]
-
-    def get_kd(self):
-        tk = self.attributes["kills"]
-        td = self.attributes["deaths"]
-        return (tk / td) if (td != 0) else tk
-
-    @property
-    def tojson(self):
-        return json.dumps(self.attributes, indent=3)
-
-    def __str__(self):
-        return ( str(self.attributes["nick"]) + ' comes from IP adress: ' + str(self.attributes["ip"]) + ':' + str(self.attributes["port"]) + ' and has player ID: ' + str(
-            self.attributes["id"]) + ' and has ' + str(self.attributes["score"]) + ' points.')
-
+import Tee
 
 class Tees(object):
     def __init__(self):
@@ -116,7 +77,7 @@ class Tees(object):
             bests = self.get_bests_argv(handle, best)
             if bests[0] >= best:
                 break
-            arr.append(out)
+            arr.append(bests[1])
             best = bests[0]
         astr = ", ".join(arr)
         return astr
