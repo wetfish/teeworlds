@@ -142,13 +142,13 @@ class TeeBot(Thread):
 
     def killSpree(self, id):
         tee = self.teelst.get_TeeLst().get(id)
-        spree = tee.get_spree()
+        spree = tee.attributes["spree"]
         if (spree % 5) == 0 and spree != 0:
-            self.bs("{} is on a killing spree with {} kills!".format(tee.get_nick(), tee.get_spree()))
+            self.bs("{} is on a killing spree with {} kills!".format(tee.get_nick(), spree))
 
     def Multikill(self, id):
         tee = self.teelst.get_TeeLst().get(id)
-        multikill = tee.get_multikill()
+        multikill = tee.attributes["multikill"]
         if multikill == 2:
             self.bs("{} DOUBLEKILL!".format(tee.get_nick()))
         elif multikill == 3:
@@ -176,11 +176,11 @@ class TeeBot(Thread):
         try:
             tee = self.teelst.get_Tee(event["player_id"])
             if tee.get_nick() != nick:
-                old_ip = tee.get_ip()
-                tee.set_nick(nick)
-                tee.set_score(event["score"])
-                tee.set_ip(ip)
-                tee.set_port(event["port"])
+                old_ip = tee.attributes["ip"]
+                tee.attributes["nick"] = nick
+                tee.attributes["score"] = event["score"]
+                tee.attributes["ip"] = ip
+                tee.attributes["port"] = event["port"]
                 if old_ip != ip:
                     self.access_log(nick, ip, "joined")
         except AttributeError as e:
@@ -194,15 +194,12 @@ class TeeBot(Thread):
                 self.plist.add_Tee(newid, nick, ip, event["port"], event["score"], 0)
         return self.teelst.get_TeeLst()
 
-    def get_Chat(self, line):
-        return self.events.conversation(line)
-
     def round_end(self):
         t = self.teelst.get_TeeLst()
         tbuf = []
         for tmp in t:
-            ttmp = self.teelst.get_Tee(tmp)
-            tbuf.append([ttmp.get_idnum(), ttmp.get_nick(), ttmp.get_ip(), ttmp.get_port()])
+            p = self.teelst.get_Tee(tmp).attributes
+            tbuf.append([p["id"], p["nick"], p["ip"], p["port"]])
         self.teelst.rm_Tee_all()
         for tb in tbuf:
             self.teelst.add_Tee(tb[0], tb[1], tb[2], tb[3], 0, 0)
@@ -238,9 +235,8 @@ class TeeBot(Thread):
                     self.writeLine("kick {0}".format(ide))
                 lista = self.updTeeList(lst)
             if lst["event_type"] == "LEAVE":
-                tee = self.teelst.get_Tee(lst["player_id"])
-                nick = tee.get_nick()
-                self.access_log(tee.get_nick(), tee.get_ip(), "left")
+                tee = self.teelst.get_Tee(lst["player_id"]).attributes
+                self.access_log(tee["nick"], tee["ip"], "left")
                 self.teelst.rm_Tee(lst["player_id"])
                 self.writeLine("status")
                 if self.player_count == 0:

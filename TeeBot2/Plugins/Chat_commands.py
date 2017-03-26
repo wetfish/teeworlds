@@ -26,5 +26,24 @@ class Chat:
             if len(ms) > 1:
                 bot.say("could not find tee {}".format(ms[1]))
             return
-        for x in range(1, 5):
-            bot.say(tee.gen_stats_line(x))
+
+        bot.say("Stats for player {}:".format(tee.attributes["nick"]))
+
+        ts = tee.attributes["largest_spree"]
+        tm = tee.attributes["largest_multikill"]
+        tx = tee.attributes["suicides"]
+        ty = tee.attributes["steals"]
+        bot.say("Best spree = {:d}, Best multi = {:d} | {:d} steals, {:d} suicides".format(ts, tm, ty, tx))
+
+        tf = tee.attributes["freezes"]
+        tz = tee.attributes["frozen"]
+        th = tee.attributes["hammers"]
+        tr = tee.attributes["hammered"]
+        tfz = ((tf / tz) if (tz != 0) else tf)
+        thr = ((th / tr) if (tr != 0) else th)
+        bot.say("Freeze ratio = {:d}/{:d} = {:3.2f} | Hammer ratio = {:d}/{:d} = {:3.2f}".format(tf,tz,tfz,th,tr,thr))
+
+        tk = tee.attributes["kills"]
+        td = tee.attributes["deaths"]
+        tkd = ((tk / td) if (td != 0) else tk)
+        bot.say("K/D ratio = {:d}/{:d} = {:3.2f}".format(tk, td, tkd))
