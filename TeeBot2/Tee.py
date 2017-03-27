@@ -25,8 +25,8 @@ import time, json
 
 class Tee(object):
     def __init__(self, idnum, nick, ip, port, score, spree, largest_spree, 
-                 largest_multikill, kills, deaths, freezes, frozen, steals, 
-                 hammers, hammered, suicides):
+                 multikill, largest_multikill, kills, lastkilltime, team, deaths, 
+                 freezes, frozen, froze_by, steals, hammers, hammered, suicides):
         self.nick = nick
         self.id = int(idnum)
         self.ip = ip
