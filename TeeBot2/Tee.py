@@ -24,11 +24,11 @@
 import time, json
 
 class Tee(object):
-    def __init__(self, idnum, nick, ip, port, score, spree, largest_spree, 
+    def __init__(self, id, nick, ip, port, score, spree, largest_spree, 
                  multikill, largest_multikill, kills, lastkilltime, team, deaths, 
                  freezes, frozen, froze_by, steals, hammers, hammered, suicides):
         self.nick = nick
-        self.id = int(idnum)
+        self.id = int(id)
         self.ip = ip
         self.port = port
         self.score = score
