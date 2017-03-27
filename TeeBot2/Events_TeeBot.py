@@ -43,6 +43,21 @@ class Events():
             return True
         else:
             return False
+    def on_frzkill(self, line):
+        result = re.search("frzkill k:(\d+):'(.+)' v:(\d+):'(.+)' w:([\d-]+)", line)
+        groups = result.groups()
+        lst = list(result.groups())
+        lst.append("KILL")
+        reply_dictionary = {
+		"event_type": "KILL",
+		"killer_id": lst[0],
+		"killer_name": lst[1],
+		"victim_id": lst[2],
+		"victim_name": lst[3],
+		"user_weapon_id": lst[4],
+		"special": 0,
+		"time_stamp": time.time(),}
+        return reply_dictionary
 
     def game_events(self, line):
         import re
@@ -50,24 +65,8 @@ class Events():
         #TODO: Broadcast messages, say messages, votes...
         if splitted_line[0] == "[game]:":
             if splitted_line[1] == "frzkill":
-                 result = re.search("frzkill k:(\d+):'(.+)' v:(\d+):'(.+)' w:([\d-]+)", line)
-                 groups = result.groups()
-                 lst = list(result.groups())
-                 lst.append("KILL")
-                 reply_dictionary = \
-                      {
-				"event_type": "KILL",
-				"killer_id": lst[0],
-				"killer_name": lst[1],
-				"victim_id": lst[2],
-				"victim_name": lst[3],
-				"user_weapon_id": lst[4],
-				"special": 0,
-				"time_stamp": time.time(),
-		      }
-                 return reply_dictionary
+                return self.on_frzkill(line)
             if splitted_line[1] == "kill" and ("killer=" in splitted_line[2]):
-                # if "[game]: kill killer='" in line: #Kill message
                result = re.search("kill killer='(\d+):(.+)' victim='(\d+):(.+)' weapon=([\d-]+) special=(\d+)", line)
                groups = result.groups()
                lst = list(result.groups())
@@ -85,27 +84,6 @@ class Events():
                         "time_stamp":       time.time(),
                       }
                    return reply_dictionary
-            if splitted_line[1] == "pickup":
-                # if "[game]: pickup " in line:
-                result = re.search("pickup player='(\d+):(.+)' item=(\d+)/(\d+)", line)
-                groups = result.groups()
-                lst = list(result.groups())
-                lst.append(self.Itemsolv(int(lst[2]), int(lst[3])))
-
-                lst.append(
-                    "PICKUP") #player_id, player_name, item_group(0 = hearts, 1 = armors,  2 = weapons(2/0=hammer 2/1 = pistol 2/2 = shotgun 2/3 = grenade 2/4 = rifle, 3 = special), group_id(useful for weapons (ninja 3/5)
-                reply_dictionary = \
-                    {
-                        "event_type": "PICKUP",
-                        "player_id":        lst[0],
-                        "player_name":      lst[1],
-                        "item_group":       lst[2],
-                        "group_id":         lst[3],
-                        "name":             lst[-2],
-                        "time_stamp":       time.time(),
-                }
-                return reply_dictionary
-            # [game]: start round type='CTF' teamplay='1'
 
             if splitted_line[1] == "start":
                 result = re.search("start round type='(.+)' teamplay='(\d+)'", line)
@@ -120,36 +98,6 @@ class Events():
                         "time_stamp":       time.time(),
                     }
                 return reply_dictionary
-
-            if splitted_line[1] == "flag_grab":
-                # if "[game]: flag_gra" in line: #flag_grab player='2:Lauti super'
-                result = re.search("flag_grab player='(\d+):(.+)'", line)
-                groups = result.groups()
-                lst = list(result.groups())
-                lst.append("FLAG") #player_id, player_name, type of event
-                reply_dictionary = \
-                    {
-                        "event_type":       "FLAG",
-                        "player_id":        lst[0],
-                        "player_name":      lst[1],
-                        "time_stamp":       time.time(),
-                    }
-                return reply_dictionary
-
-            if splitted_line[1] == "flag_capture":
-                #if "[game]: flag_capture" in line:
-                result = re.search("flag_capture player='(\d+):(.+)'", line)
-                groups = result.groups()
-                lst = list(result.groups())
-                lst.append("CAPTURE") #player_id, player_name, type of event
-                reply_dictionary = \
-                    {
-                        "event_type":       "CAPTURE",
-                        "player_id":        lst[0],
-                        "player_name":      lst[1],
-                        "time_stamp":       time.time(),
-                    }
-                return lst
 
             if splitted_line[1] == "team_join":
                 # "[game]: team_join player='0:LeveL 6' team=0\n"

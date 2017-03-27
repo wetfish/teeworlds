@@ -27,43 +27,43 @@ class Tees(object):
         self.teelst = {}
 
     def add_Tee(self, idnum, nick, ip, port, score, spree):
-        tee = Tee.Tee(idnum, nick, ip, port, score, spree)
-        self.teelst[int(tee.attributes["id"])] = tee
-
-    def get_Tee(self, player_id):
-        return self.teelst[int(player_id)]
+        tee = Tee.Tee(idnum, nick, ip, port, score, spree, 0, 
+                 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        self.teelst[int(tee.id)] = tee
 
     def rm_Tee(self, player_id):
         del self.teelst[int(player_id)]
 
-    def rm_Tee_all(self):
-        self.teelst = {}
-
-    def get_TeeLst(self):
-        return self.teelst
-
     def find_tee(self, nick):
-        t = self.get_TeeLst()
-        for tmp in t:
-            ttmp = self.get_Tee(tmp)
-            if ttmp.get_nick() == nick:
-                return ttmp
+        for tmp in self.teelst:
+            if self.teelst[tmp].nick == nick:
+                return self.teelst[tmp]
         return {}
 
+    def get_arg(self, tee, handle):
+        if handle == "kd":
+            return tee.get_kd()
+        elif handle == "largest_spree":
+            return tee.largest_spree
+        elif handle == "largest_multikill":
+            return tee.largest_multikill
+        elif handle == "steals":
+            return tee.steals
+        else:
+            print("invalid handle")
+
     def get_bests_argv(self, handle, max):
-        t = self.get_TeeLst()
         best = 0
         btees = []
-        for tmp in t:
-            ttmp = self.get_Tee(tmp)
-            tval = ttmp.get_kd() if (handle == "kd") else ttmp.attributes[handle]
+        for tmp in self.teelst:
+            tval = self.get_arg(self.teelst[tmp], handle)
             if (tval > best) and (tval < max):
                 best = tval
-        for tmp in t:
-            ttmp = self.get_Tee(tmp)
-            tval = ttmp.get_kd() if (handle == "kd") else ttmp.attributes[handle]
+        for tmp in self.teelst:
+            ttmp = self.teelst[tmp]
+            tval = self.get_arg(ttmp, handle)
             if tval == best:
-                btees.append(ttmp.get_nick())
+                btees.append(ttmp.nick)
 
         teestr = ", ".join(btees) if (best != 0) else "None"
         fmtn = "{:3.2f}".format(best) if (handle == "kd") else "{:d}".format(best)

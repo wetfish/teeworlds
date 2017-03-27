@@ -24,40 +24,39 @@
 import time, json
 
 class Tee(object):
-    def __init__(self, idnum, nick, ip, port, score, spree):
-        self.attributes = {"nick": nick,
-                           "id": int(idnum),
-                           "ip": ip,
-                           "port": port,
-                           "score": score,
-                           "spree": spree,
-                           "largest_spree": 0,
-                           "multikill": 1,
-                           "largest_multikill": 0,
-                           "kills": 0,
-                           "lastkilltime": 0,
-                           "team": None,
-                           "deaths": 0,
-                           "freezes": 0,
-                           "frozen": 0,
-                           "froze_by": 0,
-                           "steals": 0,
-                           "hammers": 0,
-                           "hammered": 0,
-                           "suicides": 0}
-
-    def get_nick(self):
-        return self.attributes["nick"]
+    def __init__(self, idnum, nick, ip, port, score, spree, largest_spree, 
+                 largest_multikill, kills, deaths, freezes, frozen, steals, 
+                 hammers, hammered, suicides):
+        self.nick = nick
+        self.id = int(idnum)
+        self.ip = ip
+        self.port = port
+        self.score = score
+        self.spree = spree
+        self.largest_spree = largest_spree
+        self.multikill = 1
+        self.largest_multikill = largest_multikill
+        self.kills = kills
+        self.lastkilltime = 0
+        self.team = None
+        self.deaths = deaths
+        self.freezes = freezes
+        self.frozen = frozen
+        self.froze_by = 0
+        self.steals = steals
+        self.hammers = hammers
+        self.hammered = hammered
+        self.suicides = suicides
 
     def get_kd(self):
-        tk = self.attributes["kills"]
-        td = self.attributes["deaths"]
+        tk = self.kills
+        td = self.deaths
         return (tk / td) if (td != 0) else tk
 
-    @property
-    def tojson(self):
-        return json.dumps(self.attributes, indent=3)
+#    @property
+#    def tojson(self):
+#        return json.dumps(self.attributes, indent=3)
 
-    def __str__(self):
-        return ( str(self.attributes["nick"]) + ' comes from IP adress: ' + str(self.attributes["ip"]) + ':' + str(self.attributes["port"]) + ' and has player ID: ' + str(
-            self.attributes["id"]) + ' and has ' + str(self.attributes["score"]) + ' points.')
+#    def __str__(self):
+#        return ( str(self.attributes["nick"]) + ' comes from IP adress: ' + str(self.attributes["ip"]) + ':' + str(self.attributes["port"]) + ' and has player ID: ' + str(
+#            self.attributes["id"]) + ' and has ' + str(self.attributes["score"]) + ' points.')
