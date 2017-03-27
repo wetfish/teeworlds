@@ -53,7 +53,6 @@ class TeeBot(Thread):
         self.debug = self.logger.debug
         self.info = self.logger.info
         self.exception = self.logger.exception
-#        self.plugin_loader = plugin_loader.Plugin_loader(self)
         teebuf = []
         try:
             with open('stats.json') as jdata:
@@ -212,76 +211,71 @@ class TeeBot(Thread):
             bufs = "[" + ",\n".join(buf) + "]"
             print(bufs)
             outf.write(bufs)
+
+    def handle_sacr(self, event, ktga, vtga):
+        spr = vtga["spree"]
+        now = time.time()
+
+        ktga["spree"] += 1
+        if ktga["spree"] > ktga["largest_spree"]:
+            ktga["largest_spree"] = ktga["spree"]
+
+        if now - ktga["lastkilltime"] <= 5:
+            ktga["multikill"] += 1
+        if now - ktga["lastkilltime"] > 5:
+            ktga["multikill"] = 1
+
+        if ktga["multikill"] > ktga["largest_multikill"]:
+            ktga["largest_multikill"] = ktga["multikill"]
+
+        ktga["lastkilltime"] = now
+        ktga["kills"] += 1
+        vtga["deaths"] += 1
+        vtga["spree"] = 0
+        return spr
+
     def on_kill(self, event): 
-        if event["event_type"] == "KILL":
-            try:
-                ktg = self.teelst.get_Tee(event["killer_id"])
-                ktga = ktg.attributes
-                vtg = self.teelst.get_Tee(event["victim_id"])
-                vtga = vtg.attributes
-                ktpa = self.plist.find_tee(ktga["nick"]).attributes
-                vtpa = self.plist.find_tee(vtga["nick"]).attributes
-                kid = ktga["id"]
-                vid = vtga["id"]
-                if (event["user_weapon_id"] == '-2') or (kid == vid):
-                    ktga["suicides"] += 1
-                    ktpa["suicides"] += 1
-                elif event["user_weapon_id"] == '5': #sac
-                    ksp = ktga["spree"] + 1
-                    spr = vtga["spree"]
-                    
-                    now = time.time()
-                    if ksp > ktga["largest_spree"]:
-                        ktga["largest_spree"] = ksp
-                    if ksp > ktpa["largest_spree"]:
-                        ktpa["largest_spree"] = ksp
+        try:
+            ktg = self.teelst.get_Tee(event["killer_id"])
+            ktga = ktg.attributes
+            vtg = self.teelst.get_Tee(event["victim_id"])
+            vtga = vtg.attributes
+            ktpa = self.plist.find_tee(ktga["nick"]).attributes
+            vtpa = self.plist.find_tee(vtga["nick"]).attributes
+            if (event["user_weapon_id"] == '-2') or (ktga["id"] == vtga["id"]):
+                ktga["suicides"] += 1
+                ktpa["suicides"] += 1
+            elif event["user_weapon_id"] == '5': #sac
+                spr = self.handle_sacr(event, ktga, vtga)
+                self.handle_sacr(event, ktpa, vtpa)
+                if spr >= 5:
+                    t = threading.Timer(5, self.shutdown, args=[vtg, ktg, spr])
+                    t.start()
+                self.killSpree(ktga["id"])
+                if ktga["id"] == vtga["froze_by"]:
+                    self.Multikill(ktga["id"])
+                else:
+                    tt = self.teelst.get_Tee(vtga["froze_by"])
+                    self.say("{} stole {}'s kill!".format(ktga["nick"], tt.get_nick()))
+                    ktga["steals"] += 1
+                    ktpa["steals"] += 1
+            elif event["user_weapon_id"] == '4': #freeze
+                ktga["freezes"] += 1
+                ktpa["freezes"] += 1
+                vtga["frozen"] += 1
+                vtpa["frozen"] += 1
+                vtga["froze_by"] = ktga["id"]
+                vtpa["froze_by"] = ktga["id"]
+            elif event["user_weapon_id"] == '0': #hammer
+                ktga["hammers"] += 1
+                ktpa["hammers"] += 1
+                vtga["hammered"] += 1
+                vtpa["hammered"] += 1
+        except (KeyError, NameError) as e:
+            self.exception(e)
+            self.debug("Guessing Tee didn't exist! Updating player list!")
+            self.writeLine("status")
 
-                    if now - ktga["lastkilltime"] <= 5:
-                        ktga["multikill"] += 1
-                    if now - ktga["lastkilltime"] > 5:
-                        ktga["multikill"] = 1
-
-                    if ktga["multikill"] > ktga["largest_multikill"]:
-                        ktga["largest_multikill"] = ktga["multikill"]
-                    if ktga["multikill"] > ktpa["largest_multikill"]:
-                        ktpa["largest_multikill"] = ktga["multikill"]
-
-                    ktga["lastkilltime"] = now
-                    ktga["kills"] += 1
-                    ktga["spree"] = ksp
-                    ktpa["kills"] += 1
-                    if spr >= 5:
-                        t = threading.Timer(5, self.shutdown, args=[vtg, ktg, spr])
-                        t.start()
-                    vtga["deaths"] += 1
-                    vtga["spree"] = 0
-                    vtpa["deaths"] += 1
-                    vtpa["spree"] = 0
-                    self.killSpree(kid)
-                    id = vtga["froze_by"]
-                    if kid == id:
-                        self.Multikill(kid)
-                    else:
-                        tt = self.teelst.get_Tee(id)
-                        self.say("{} stole {}'s kill!".format(ktga["nick"], tt.get_nick()))
-                        ktga["steals"] += 1
-                        ktpa["steals"] += 1
-                elif event["user_weapon_id"] == '4': #freeze
-                    ktga["freezes"] += 1
-                    ktpa["freezes"] += 1
-                    vtga["frozen"] += 1
-                    vtpa["frozen"] += 1
-                    vtga["froze_by"] = kid
-                    vtpa["froze_by"] = kid
-                elif event["user_weapon_id"] == '0': #hammer
-                    ktga["hammers"] += 1
-                    ktpa["hammers"] += 1
-                    vtga["hammered"] += 1
-                    vtpa["hammered"] += 1
-            except (KeyError, NameError) as e:
-                self.exception(e)
-                self.debug("Guessing Tee didn't exist! Updating player list!")
-                self.writeLine("status")
     def on_chat(self, event):
         msg = event["message"]
         if "!" != msg[0]:
@@ -337,9 +331,6 @@ class TeeBot(Thread):
                 for x in range(1, 5):
                     self.say(self.teelst.gen_bests_line(x))
                 self.round_end()
-#            if lst["event_type"] == "RELOAD ORDER":
-#                self.info("Reloaded plugins")
-#                importlib.reload(plugin_loader)
             if lst["event_type"] == "NICK CHANGE":
                 self.writeLine("status")
             elif lst["event_type"] == "MAP_CHANGE":
@@ -358,13 +349,9 @@ class TeeBot(Thread):
                 if self.player_count == 0:
                     self.writeLine("restart")
             elif lst["event_type"] == "KILL":
-                on_kill(event)
+                self.on_kill(lst)
             elif lst["event_type"] == "CHAT":
-                on_chat(event)
-#            else:
-#                pass
-#            self.plugin_loader.event_handler(lst)
-
+                self.on_chat(lst)
         return lst
 
     def run(self):
