@@ -55,6 +55,9 @@ class Tee(object):
         self.frozen = frozen
         self.froze_by = 0
         self.steals = steals
+        self.hammers = hammers
+        self.hammered = hammered
+        self.suicides = suicides
 
 class TeeBot(Thread):
     def __init__(self):
@@ -80,7 +83,7 @@ class TeeBot(Thread):
                 teebuf = json.load(jdata)
             x = 0
             for tt in teebuf:
-                self.plist[x] = Tee.Tee(**tt)
+                self.plist[x] = Tee(**tt)
                 print(self.plist[x].__dict__)
                 x += 1
         except ValueError as e:
@@ -206,12 +209,12 @@ class TeeBot(Thread):
     def get_bests_argv(self, list, handle, max):
         best = 0
         btees = []
-        for tmp in list.teelst:
-            tval = self.get_arg(list.teelst[tmp], handle)
+        for tmp in list:
+            tval = self.get_arg(list[tmp], handle)
             if (tval > best) and (tval < max):
                 best = tval
-        for tmp in list.teelst:
-            ttmp = list.teelst[tmp]
+        for tmp in list:
+            ttmp = list[tmp]
             tval = self.get_arg(ttmp, handle)
             if tval == best:
                 btees.append(ttmp.nick)
