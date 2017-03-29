@@ -38,27 +38,29 @@ class Tee(object):
     def __init__(self, id, nick, ip, port, score, spree, largest_spree, 
                  multikill, largest_multikill, kills, lastkilltime, team, deaths, 
                  freezes, frozen, froze_by, steals, hammers, hammered, suicides):
-        self.nick = nick
-        self.id = int(id)
-        self.ip = ip
-        self.port = port
-        self.score = score
-        self.spree = spree
-        self.largest_spree = largest_spree
-        self.multikill = 1
-        self.largest_multikill = largest_multikill
-        self.kills = kills
-        self.lastkilltime = 0
-        self.team = None
-        self.deaths = deaths
-        self.freezes = freezes
-        self.frozen = frozen
-        self.froze_by = 0
-        self.steals = steals
-        self.hammers = hammers
-        self.hammered = hammered
-        self.suicides = suicides
-
+        try:
+         self.nick = nick
+         self.id = int(id)
+         self.ip = ip
+         self.port = port
+         self.score = score
+         self.spree = spree
+         self.largest_spree = largest_spree
+         self.multikill = 1
+         self.largest_multikill = largest_multikill
+         self.kills = kills
+         self.lastkilltime = 0
+         self.team = None
+         self.deaths = deaths
+         self.freezes = freezes
+         self.frozen = frozen
+         self.froze_by = 0
+         self.steals = steals
+         self.hammers = hammers
+         self.hammered = hammered
+         self.suicides = suicides
+        except TypeError as e:
+         print("error: {}".format(e.msg))
 class TeeBot(Thread):
     def __init__(self):
         Thread.__init__(self)
@@ -88,7 +90,8 @@ class TeeBot(Thread):
                 x += 1
         except ValueError as e:
             print("json error {} at {:d}".format(e.msg, e.pos))
-        
+        except TypeError as f:
+            print("type error {}".format(f))
     @property
     def player_count(self):
         return len(self.teelst.keys())
@@ -131,7 +134,7 @@ class TeeBot(Thread):
 
     def add_tee(self, list, idnum, nick, ip, port, score, spree):
         tee = Tee(idnum, nick, ip, port, score, spree, 0, 
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0)
         list[int(tee.id)] = tee
 
     def find_tee(self, list, nick):
@@ -197,12 +200,6 @@ class TeeBot(Thread):
             return tee.kills / (tee.deaths if (tee.deaths != 0) else 1)
         elif handle in tee.__dict__:
             return tee.__dict__[handle]
-#        elif handle == "largest_spree":
-#            return tee.largest_spree
-#        elif handle == "largest_multikill":
-#            return tee.largest_multikill
-#        elif handle == "steals":
-#            return tee.steals
         else:
             print("invalid handle")
 
@@ -277,7 +274,7 @@ class TeeBot(Thread):
             self.bs("{} PENTAKILL!".format(ktg.nick))
         elif ktg.multikill >= 6:
             self.bs("{} IS A BADASS!".format(ktg.nick))
-        if ktg.id != vtg.froze_by:
+        if (ktg.id != vtg.froze_by) and (vtg.froze_by != -1):
             tt = self.teelst[vtg.froze_by]
             self.say("{} stole {}'s kill!".format(ktg.nick, tt.nick))
             ktg.steals += 1
@@ -285,6 +282,7 @@ class TeeBot(Thread):
         if spr >= 5:
             t = threading.Timer(5, self.shutdown, args=[vtg, ktg, spr])
             t.start()
+        vtg.froze_by = -1
 
     def on_kill(self, event): 
         try:
@@ -328,7 +326,7 @@ class TeeBot(Thread):
         thr = ((th / tr) if (tr != 0) else th)
         self.say("Stats for player {}:".format(tee.nick))
         self.say("Best spree: {:d}, Best multi: {:d}, Steals: {:d}, Suicides: {:d}".format(
-            tee.largest_spree, tee.largest_multikill, tee.suicides, tee.steals))
+            tee.largest_spree, tee.largest_multikill, tee.steals, tee.suicides))
         self.say("Freeze ratio = {:d}/{:d} = {:3.2f}".format(tf, tz, tfz))
         self.say("Hammer ratio = {:d}/{:d} = {:3.2f}".format(th, tr, thr))
         self.say("K/D ratio = {:d}/{:d} = {:3.2f}".format(tk, td, tkd))
