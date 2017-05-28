@@ -318,7 +318,7 @@ class TeeBot(Thread):
                         self.debug("We got line: {}".format(line))
                 except Exception as e:
                     self.exception(e)
-                    exit()
+                  #  exit()
                 if line == "\n":
                     pass
                 elif "[server]:" in line.split(" ")[0] and ("player" in line.split(" ")[1] and "has" in line.split(" ")[2]):
