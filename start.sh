@@ -49,8 +49,12 @@ if [ "$VERSIONARG" = "all" ]; then
 	BINARIES=($(ls binaries))
 else
 	# Single version, check if exists, store in array
-	# TODO: check if it exists
-	BINARIES=("$VERSIONARG")
+	if [ -d "binaries/$VERSIONARG" ]; then
+		BINARIES=("$VERSIONARG")
+	else
+		echo "Binary $VERSIONARG doesn't exist!"
+		exit 1
+	fi
 fi
 
 if [ "$CONFIGARG" = "all" ]; then
@@ -58,8 +62,12 @@ if [ "$CONFIGARG" = "all" ]; then
 	CONFIGS=($(find config/enabled -type f | sed 's%^config/enabled/%%'))
 else
 	# Single config, check if exists, store in array
-	# TODO: check if it exists
-	CONFIGS=("$CONFIGARG.conf")
+	if [ -f "config/enabled/$CONFIGARG.conf" ]; then
+		CONFIGS=("$CONFIGARG.conf")
+	else
+		echo "Config $CONFIGARG.conf not enabled or doesn't exist!"
+		exit 1
+	fi
 fi
 
 # Loop through chosen binaries and run with chosen configs.
