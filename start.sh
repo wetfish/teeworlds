@@ -11,15 +11,14 @@ help() {
 }
 
 # Check that arguments were passed
-if [[ $1 == "" ]]; then
+if [[ $# == 0 ]]; then
 	help
-	exit
 fi
 
 # Parse arguments
 ! PARSE=$(getopt --options hv:c: --longoptions help,version:,config: --name "$0" -- "$@")
 if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-	help;
+	help
 fi
 eval set -- "$PARSE"
 
@@ -47,38 +46,39 @@ done
 ## Check for 'all' arguments
 if [ "$VERSIONARG" = "all" ]; then
 	# Store all versions in array
-	binaries=($(ls binaries))
+	BINARIES=($(ls binaries))
 else
 	# Single version, check if exists, store in array
 	# TODO: check if it exists
-	binaries=("$VERSIONARG")
+	BINARIES=("$VERSIONARG")
 fi
 
 if [ "$CONFIGARG" = "all" ]; then
 	# Store all configs in array
-	configs=($(find config/enabled -type f | sed 's%^config/enabled/%%'))
+	CONFIGS=($(find config/enabled -type f | sed 's%^config/enabled/%%'))
 else
 	# Single config, check if exists, store in array
 	# TODO: check if it exists
-	configs=("$CONFIGARG.conf")
+	CONFIGS=("$CONFIGARG.conf")
 fi
 
 # Loop through chosen binaries and run with chosen configs.
-for i in "${binaries[@]}"
+for i in "${BINARIES[@]}"
 do
-	for c in "${configs[@]}"
+	for c in "${CONFIGS[@]}"
 	do
 		cd ~/server
-		config="config/enabled/$c"
-		temp="teeworlds.$RANDOM.conf"
-		cat $config >> "/tmp/$temp"
+		CONFIG="config/enabled/$c"
+		TEMP="teeworlds.$RANDOM.conf"
+		cat "$CONFIG" >> "/tmp/$TEMP"
 
 		cd /tmp
-		echo "sv_rcon_password $adminpass" >> $temp
-		echo "sv_rcon_mod_password $modpass" >> $temp
+		echo "sv_rcon_password $adminpass" >> $TEMP
+		echo "sv_rcon_mod_password $modpass" >> $TEMP
 
 		# test run for now.
-		#echo "Running config $config on version $i"
-		~/server/binaries/$i/teeworlds_srv -f $temp &
+		#echo "Running config $CONFIG on version $i"
+		~/server/binaries/"$i"/teeworlds_srv -f $TEMP &
+		rm $TEMP
 	done
 done
