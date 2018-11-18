@@ -86,7 +86,6 @@ do
 
 		# test run for now.
 		#echo "Running config $CONFIG on version $i"
-		~/server/binaries/"$i"/teeworlds_srv -f $TEMP &
-		rm $TEMP
+		( ~/server/binaries/"$i"/teeworlds_srv -f $TEMP; rm $TEMP ) &
 	done
 done
