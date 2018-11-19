@@ -73,6 +73,9 @@ fi
 # Loop through chosen binaries and run with chosen configs.
 for i in "${BINARIES[@]}"
 do
+	if [[ ! -d /tmp/"$i" ]]; then
+		mkdir /tmp/"$i"
+	fi
 	for c in "${CONFIGS[@]}"
 	do
 		cd ~/server
@@ -84,8 +87,10 @@ do
 		echo "sv_rcon_password $adminpass" >> $TEMP
 		echo "sv_rcon_mod_password $modpass" >> $TEMP
 
-		# test run for now.
-		#echo "Running config $CONFIG on version $i"
-		( ~/server/binaries/"$i"/teeworlds_srv -f $TEMP; rm $TEMP ) &
+		# Random port
+		echo "sv_port $(shuf -i 5000-50000 -n 1)" >> $TEMP
+
+		# Run the servers
+		nohup bash -c "~/server/binaries/\"$i\"/teeworlds_srv -f $TEMP; rm /tmp/$TEMP" > /tmp/"$i"/$(basename "$c").out &
 	done
 done
