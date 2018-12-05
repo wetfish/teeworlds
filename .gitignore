@@ -6,3 +6,5 @@ TeeBot2/chat.log
 TeeBot2/access_log.txt
 *.pyc
 stats.json
+
+binaries/*
